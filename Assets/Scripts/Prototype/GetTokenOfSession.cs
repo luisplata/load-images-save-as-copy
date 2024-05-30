@@ -73,6 +73,7 @@ public class HttpPostRequest<T>
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
+                Debug.Log(responseString);
                 T result = JsonUtility.FromJson<T>(responseString);
                 onSuccess?.Invoke(result);
             }
@@ -87,5 +88,50 @@ public class HttpPostRequest<T>
         }
 
         yield return null;
+    }
+    public IEnumerator SendRequestWithToken(string url, object data, Action<T> onSuccess, Action<string> onError)
+    {
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+        request.Method = "POST";
+        request.ContentType = "application/json";
+
+        request.Headers.Add("Authorization", $"Bearer {SaveAndLoadData.LoadData("token")}");
+
+        string json = JsonUtility.ToJson(data);
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+        request.ContentLength = bodyRaw.Length;
+
+        using (var stream = request.GetRequestStream())
+        {
+            stream.Write(bodyRaw, 0, bodyRaw.Length);
+        }
+
+        var asyncResult = request.BeginGetResponse(null, null);
+
+        while (!asyncResult.IsCompleted)
+        {
+            yield return null;
+        }
+
+        try
+        {
+            var response = (HttpWebResponse)request.EndGetResponse(asyncResult);
+            var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                Debug.Log(responseString);
+                var result = JsonUtility.FromJson<T>(responseString);
+                onSuccess?.Invoke(result);
+            }
+            else
+            {
+                onError?.Invoke($"Error: {response.StatusCode}");
+            }
+        }
+        catch (Exception e)
+        {
+            onError?.Invoke($"Exception: {e.Message}");
+        }
     }
 }
