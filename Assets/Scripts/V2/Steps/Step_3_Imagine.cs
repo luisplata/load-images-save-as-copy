@@ -24,6 +24,7 @@ namespace V2.Steps
         protected override void NextAction()
         {
             //base.NextAction();
+            stepsConfig.NextStep();
         }
     }
 }

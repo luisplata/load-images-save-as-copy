@@ -11,42 +11,31 @@ namespace V2.Steps
         private int imageSelected;
         private TeaTime flow;
         private bool readyToNextStep;
-        
+
         private byte[] imageBytes;
+
         public override void StartStep()
         {
             for (var i = 0; i < imageLoadingFromUrls.Count; i++)
             {
                 imageLoadingFromUrls[i].LoadImage(stepsConfig.GetImages()[i]);
-                imageLoadingFromUrls[i].OnFinishLoading += () =>
-                {
-                    imageSelected++;
-                    if (imageSelected == imageLoadingFromUrls.Count)
-                    {
-                        readyToNextStep = true;
-                    }
-                };
+                imageLoadingFromUrls[i].OnFinishLoading += () => { };
                 imageLoadingFromUrls[i].OnSelectImage += bytes =>
                 {
                     imageBytes = bytes;
                     readyToNextStep = true;
                 };
             }
-            
+
             flow = this.tt().Pause()
-                .Add(() =>
-                {
-                    foreach (var imageLoadingFromUrl in imageLoadingFromUrls)
-                    {
-                        //imageLoadingFromUrl.Dont
-                    }
-                }).Wait(() => readyToNextStep).Add(() =>
+                .Add(() => { }).Wait(() => readyToNextStep).Add(() =>
                 {
                     readyToNextStep = false;
+                    ShowNextButton();
+                    Debug.Log("Image selected");
                 });
-            
+
             flow.Play();
-            
         }
 
         protected override void NextAction()

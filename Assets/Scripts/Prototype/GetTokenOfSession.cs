@@ -20,13 +20,8 @@ public class GetTokenOfSession : MonoBehaviour
             password = password
         };
         var postRequest = new HttpPostRequest<TokenData>();
-        StartCoroutine(postRequest.SendRequest(url, passwordObject, (d) =>
-        {
-            actionOk?.Invoke(d.token);
-        }, (e) =>
-        {
-            actionError?.Invoke();
-        }));
+        StartCoroutine(postRequest.SendRequest(url, passwordObject, (d) => { actionOk?.Invoke(d.token); },
+            (e) => { actionError?.Invoke(); }));
     }
 }
 
@@ -42,12 +37,6 @@ public class TokenData
     public string token;
 }
 
-
-public class HttpResponse
-{
-    public HttpStatusCode StatusCode { get; set; }
-    public string Body { get; set; }
-}
 
 public class HttpPostRequest<T>
 {
@@ -89,6 +78,7 @@ public class HttpPostRequest<T>
 
         yield return null;
     }
+
     public IEnumerator SendRequestWithToken(string url, object data, Action<T> onSuccess, Action<string> onError)
     {
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -132,6 +122,7 @@ public class HttpPostRequest<T>
         catch (Exception e)
         {
             onError?.Invoke($"Exception: {e.Message}");
+            throw;
         }
     }
 }

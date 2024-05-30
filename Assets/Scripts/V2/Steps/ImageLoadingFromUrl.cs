@@ -9,12 +9,20 @@ namespace V2.Steps
     public class ImageLoadingFromUrl : MonoBehaviour
     {
         [SerializeField] private Image image;
+        [SerializeField] private Button selectImageButton;
         public Action OnFinishLoading;
         public Action<byte[]> OnSelectImage;
 
         public void LoadImage(string url)
         {
             StartCoroutine(LoadTexture(url));
+            selectImageButton.onClick.AddListener(() =>
+            {
+                //Get bytes from image
+                var texture = image.sprite.texture;
+                var bytes = texture.EncodeToPNG();
+                OnSelectImage?.Invoke(bytes);
+            });
         }
 
         private IEnumerator LoadTexture(string imageUrl)
@@ -33,6 +41,7 @@ namespace V2.Steps
                     new Vector2(0.5f, 0.5f));
                 image.sprite = sprite;
                 Debug.Log("Image loaded");
+                OnFinishLoading?.Invoke();
             }
         }
     }
