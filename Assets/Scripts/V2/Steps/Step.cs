@@ -18,6 +18,7 @@ namespace V2.Steps
         protected virtual void NextAction()
         {
             NextStep.StartStep();
+            stepsConfig.NextStep();
         }
 
         protected virtual void Start()
@@ -25,7 +26,6 @@ namespace V2.Steps
             nextStepButton.onClick.AddListener(() =>
             {
                 Debug.Log("Next step");
-                stepsConfig.NextStep();
                 NextAction();
             });
             HideNextButton();
