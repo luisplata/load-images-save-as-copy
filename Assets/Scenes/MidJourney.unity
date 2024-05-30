@@ -4898,7 +4898,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5235ff6441e4c30bc3602b9b0210c25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  endpoint: http://localhost:3000
+  endpoint: https://midjourney.peryloth.com
   getTokenOfSession: {fileID: 1128217666}
   imagine: {fileID: 1128217665}
 --- !u!114 &1128217665
@@ -4926,7 +4926,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0621852377fb4483bae5d0437e78493e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uri: /api/get-token
+  uri: /auth/get-token
   password: sasas
 --- !u!1 &1128629025
 GameObject:
