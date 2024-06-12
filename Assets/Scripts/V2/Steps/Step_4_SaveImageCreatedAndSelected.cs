@@ -32,7 +32,6 @@ namespace V2.Steps
                 {
                     readyToNextStep = false;
                     ShowNextButton();
-                    Debug.Log("Image selected");
                 });
 
             flow.Play();

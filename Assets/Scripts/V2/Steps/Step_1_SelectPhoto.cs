@@ -8,7 +8,8 @@ namespace V2.Steps
     public class Step_1_SelectPhoto : Step
     {
         [SerializeField] private Button selectPhotoButton;
-        private bool readyToNextStep;
+        [SerializeField] private Image image;
+        private bool readyToNextStep, _fileSelected;
         private string path;
 
         private TeaTime flow;
@@ -28,6 +29,7 @@ namespace V2.Steps
                 tex.LoadImage(imageBytes);
                 stepsConfig.SetImageBytes(imageBytes);
                 readyToNextStep = true;
+                image.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
                 yield return tex;
             }
             else
@@ -50,20 +52,34 @@ namespace V2.Steps
 #endif
                     NativeFilePicker.PickFile(_path =>
                     {
-                        if (_path == null)
-                            Debug.Log("Operación cancelada");
-                        else
+                        _fileSelected = _path != null;
+                        if (_fileSelected)
                         {
                             path = _path;
-                            readyToNextStep = true;
                         }
+                        else
+                        {
+                            Debug.Log("Operación cancelada");
+                        }
+
+                        readyToNextStep = true;
                     }, fileTypes);
                 }).Wait(() => readyToNextStep)
                 .Add(() =>
                 {
+                    if (_fileSelected)
+                    {
+                        StartCoroutine(LoadImageFromDisk(path));
+                    }
+                }).Wait(() => readyToNextStep).Add(() =>
+                {
+                    if (_fileSelected)
+                    {
+                        ShowNextButton();
+                    }
+
                     readyToNextStep = false;
-                    StartCoroutine(LoadImageFromDisk(path));
-                }).Wait(() => readyToNextStep).Add(ShowNextButton);
+                });
         }
     }
 }

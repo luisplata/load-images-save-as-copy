@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 namespace V2
 {
@@ -26,6 +28,15 @@ namespace V2
             });
         }
     
-        public void LoadScene(int sceneIndex) => UnityEngine.SceneManagement.SceneManager.LoadScene(sceneIndex);
+        public void LoadScene(int sceneIndex)
+        {
+            StartCoroutine(LoadSceneAsync(sceneIndex));
+        }
+
+        private IEnumerator LoadSceneAsync(int sceneIndex)
+        {
+            yield return new WaitForSeconds(1);
+            SceneManager.LoadScene(sceneIndex);
+        }
     }
 }

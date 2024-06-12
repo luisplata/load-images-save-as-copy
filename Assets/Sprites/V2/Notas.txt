@@ -1,0 +1,10 @@
+Tipografías:
+Las tipografias son de google fonts
+
+Montserrrat 900 Black
+Montserrrat 500 Medium
+
+Teko 600 Semibold
+
+
+
