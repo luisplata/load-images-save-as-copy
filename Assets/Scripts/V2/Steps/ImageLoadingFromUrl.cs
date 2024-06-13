@@ -8,7 +8,7 @@ namespace V2.Steps
 {
     public class ImageLoadingFromUrl : MonoBehaviour
     {
-        [SerializeField] private Image image;
+        [SerializeField] private Image image, imageBig;
         [SerializeField] private Button selectImageButton;
         public Action OnFinishLoading;
         public Action<byte[]> OnSelectImage;
@@ -22,6 +22,7 @@ namespace V2.Steps
                 var texture = image.sprite.texture;
                 var bytes = texture.EncodeToPNG();
                 OnSelectImage?.Invoke(bytes);
+                imageBig.sprite = image.sprite;
             });
         }
 

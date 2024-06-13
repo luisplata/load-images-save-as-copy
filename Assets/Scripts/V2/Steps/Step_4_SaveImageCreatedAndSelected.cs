@@ -42,26 +42,52 @@ namespace V2.Steps
             SaveImageInDisk(imageBytes);
         }
 
-
         private void SaveImageInDisk(byte[] imageBytes)
         {
-            if (imageBytes != null)
+            try
             {
-                string pathToSave = Application.persistentDataPath + "/Pictures/PhotoLeap/";
-                if (!Directory.Exists(pathToSave))
+                if (imageBytes != null)
                 {
-                    Directory.CreateDirectory(pathToSave);
+                    string pathToSave = Path.Combine(Application.persistentDataPath, "Pictures/Photoleap");
+
+                    if (!Directory.Exists(pathToSave))
+                    {
+                        Directory.CreateDirectory(pathToSave);
+                    }
+
+                    string pathToSaveT = Path.Combine(Application.temporaryCachePath, "PhotoLeap");
+                    if (!Directory.Exists(pathToSaveT))
+                    {
+                        Directory.CreateDirectory(pathToSaveT);
+                    }
+
+                    var nombreArchivo = $"Photoleap_imagen_modificada_{DateTime.Now:yyyyMMddHHmmss}.jpg";
+                    var filePath = Path.Combine(pathToSaveT, nombreArchivo);
+                    File.WriteAllBytes(filePath, imageBytes);
+                    Debug.Log("Imagen modificada guardada en: " + filePath);
+                    NativeFilePicker.ExportFile(filePath, success =>
+                    {
+                        Debug.Log($"Archivo exportado: {success}");
+                        if (success)
+                        {
+                            NextStep.StartStep();
+                            stepsConfig.NextStep();
+                            File.Delete(filePath);
+                        }
+                        else
+                        {
+                            stepsConfig.ErrorHandling.ShowError("Error, no hay imagen para guardar");
+                        }
+                    });
                 }
-
-                var nombreArchivo = $"Photoleap_imagen_modificada_{DateTime.Now:yyyyMMddHHmmss}.jpg";
-                var filePath = Path.Combine(pathToSave, nombreArchivo);
-
-                File.WriteAllBytes(filePath, imageBytes);
-                Debug.Log("Imagen modificada guardada en: " + filePath);
-
-                var permission =
-                    NativeFilePicker.ExportFile(filePath, (success) => Debug.Log($"Archivo exportado: {success}"));
-                Debug.Log("Resultado del permiso: " + permission);
+                else
+                {
+                    stepsConfig.ErrorHandling.ShowError("Error, no hay imagen para guardar");
+                }
+            }
+            catch (Exception e)
+            {
+                stepsConfig.ErrorHandling.ShowError($"Error, no hay imagen para guardar {e.Message}");
             }
         }
     }

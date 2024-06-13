@@ -17,7 +17,7 @@ namespace V2.Steps
                 ShowNextButton();
             }, () =>
             {
-                Debug.Log("Error al cargar la imagen");
+                stepsConfig.ErrorHandling.ShowError("Error al cargar la imagen");
             });
         }
 

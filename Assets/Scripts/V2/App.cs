@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
@@ -7,6 +8,7 @@ namespace V2
     public class App : MonoBehaviour
     {
         public UnityEvent OnStartApp;
+        [SerializeField] private ErrorHandling errorHandling;
         private void Start()
         {
             if (SaveAndLoadData.LoadData("token") == null)
@@ -17,5 +19,7 @@ namespace V2
             }
             OnStartApp?.Invoke();
         }
+        
+        public ErrorHandling ErrorHandling => errorHandling;
     }
 }

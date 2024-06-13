@@ -10,6 +10,8 @@ namespace V2
     {
         [SerializeField] private ScrollRect scrollRect;
         [SerializeField] private int countOfSteps;
+        [SerializeField] private ErrorHandling errorHandling;
+        public ErrorHandling ErrorHandling => errorHandling;
         private int currentStep;
         private byte[] imageBytes;
         private List<string> _upScales;
