@@ -10,8 +10,7 @@ namespace V2
     {
         [SerializeField] private ScrollRect scrollRect;
         [SerializeField] private int countOfSteps;
-        [SerializeField] private ErrorHandling errorHandling;
-        public ErrorHandling ErrorHandling => errorHandling;
+        public ErrorHandle ErrorHandling => ErrorHandle.Instance;
         private int currentStep;
         private byte[] imageBytes;
         private List<string> _upScales;
@@ -80,6 +79,7 @@ namespace V2
 
         public void SaveProfessionSelected(string text)
         {
+            Debug.Log($"StepsConfig SaveProfessionSelected {text}");
             _professionSaved = text;
         }
     }

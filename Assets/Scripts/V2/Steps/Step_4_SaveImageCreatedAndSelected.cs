@@ -14,17 +14,43 @@ namespace V2.Steps
 
         private byte[] imageBytes;
 
+        public static bool IsValidUrl(string url)
+        {
+            Debug.Log($"Validating URL: {url}");
+            bool result = Uri.TryCreate(url, UriKind.Absolute, out Uri uriResult)
+                          && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+            return result;
+        }
+        
         public override void StartStep()
         {
+            //Quiero recorrer `stepsConfig.GetImages()` y saber si hay alguna URL en la lista y si no hay ninguna. QUiero lanzar un error
+            
+            
+            var imagesWithoutUrl = stepsConfig.GetImages().FindAll(IsValidUrl);
+            
+            if (imagesWithoutUrl.Count == 0)
+            {
+                stepsConfig.ErrorHandling.ShowError("Error, no hay imagen para guardar");
+                return;
+            }
+            
             for (var i = 0; i < imageLoadingFromUrls.Count; i++)
             {
-                imageLoadingFromUrls[i].LoadImage(stepsConfig.GetImages()[i]);
-                imageLoadingFromUrls[i].OnFinishLoading += () => { };
-                imageLoadingFromUrls[i].OnSelectImage += bytes =>
+                if (IsValidUrl(stepsConfig.GetImages()[i]))
                 {
-                    imageBytes = bytes;
-                    readyToNextStep = true;
-                };
+                    imageLoadingFromUrls[i].LoadImage(stepsConfig.GetImages()[i]);
+                    imageLoadingFromUrls[i].OnFinishLoading += () => { };
+                    imageLoadingFromUrls[i].OnSelectImage += bytes =>
+                    {
+                        imageBytes = bytes;
+                        readyToNextStep = true;
+                    };
+                }
+                else
+                {
+                    imageLoadingFromUrls[i].ErrorToLoadImage();
+                }
             }
 
             flow = this.tt().Pause()

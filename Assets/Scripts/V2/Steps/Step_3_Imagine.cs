@@ -10,7 +10,7 @@ namespace V2.Steps
         public override void StartStep()
         {
             Debug.Log("LoadImageAndCreateNewImage");
-            Http.ImagineRequest(stepsConfig.GetImageBytes(), stepsConfig.GetStyle(), stepsConfig.GetProfession(), (response) =>
+             Http.ImagineRequest(stepsConfig.GetImageBytes(), stepsConfig.GetStyle(), stepsConfig.GetProfession(), (response) =>
             {
                 stepsConfig.SaveImages(response);
                 NextStep.StartStep();

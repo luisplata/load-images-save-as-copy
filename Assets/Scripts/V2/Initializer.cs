@@ -35,8 +35,31 @@ namespace V2
 
         private IEnumerator LoadSceneAsync(int sceneIndex)
         {
-            yield return new WaitForSeconds(1);
-            SceneManager.LoadScene(sceneIndex);
+            int maxRetries = 3; // Número máximo de intentos
+            int attempts = 0; // Contador de intentos
+            bool sceneLoaded = false; // Indicador de si la escena se ha cargado
+
+            while (attempts < maxRetries && !sceneLoaded)
+            {
+                yield return new WaitForSeconds(1); // Espera antes de intentar cargar la escena, para simular un reintento
+
+                try
+                {
+                    SceneManager.LoadScene(sceneIndex);
+                    sceneLoaded = true; // Si se carga la escena, establecer el indicador a true
+                }
+                catch
+                {
+                    // En caso de error, incrementar el contador de intentos
+                    attempts++;
+                }
+            }
+
+            if (!sceneLoaded)
+            {
+                // Si después de todos los intentos la escena no se ha cargado, cerrar la aplicación
+                Application.Quit();
+            }
         }
     }
 }

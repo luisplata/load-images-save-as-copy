@@ -15,6 +15,7 @@ namespace V2.Steps
 
         public void LoadImage(string url)
         {
+            Debug.Log($"Loading image from {url}");
             StartCoroutine(LoadTexture(url));
             selectImageButton.onClick.AddListener(() =>
             {
@@ -44,6 +45,11 @@ namespace V2.Steps
                 Debug.Log("Image loaded");
                 OnFinishLoading?.Invoke();
             }
+        }
+
+        public void ErrorToLoadImage()
+        {
+            image.color = Color.red;
         }
     }
 }

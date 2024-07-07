@@ -18,6 +18,7 @@ namespace V2
             if (Instance == null)
             {
                 Instance = this;
+                DontDestroyOnLoad(gameObject);
             }
             else
             {
@@ -27,10 +28,19 @@ namespace V2
 
         private void Start()
         {
+            HideMessage();
+            closeButton.onClick.AddListener(() =>
+            {
+                SceneManager.LoadScene(0);
+                HideMessage();
+            });
+        }
+
+        private void HideMessage()
+        {
             errorPanel.SetActive(false);
             errorText.gameObject.SetActive(false);
             closeButton.gameObject.SetActive(false);
-            closeButton.onClick.AddListener(() => SceneManager.LoadScene(0));
         }
 
         public void ShowError(string message)
@@ -39,6 +49,7 @@ namespace V2
             errorText.gameObject.SetActive(true);
             closeButton.gameObject.SetActive(true);
             errorText.text = message;
+            Debug.LogError(message);
         }
     }
 }

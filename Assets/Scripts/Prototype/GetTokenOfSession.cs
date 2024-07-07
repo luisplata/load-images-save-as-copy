@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class GetTokenOfSession : MonoBehaviour
 {
@@ -20,8 +21,12 @@ public class GetTokenOfSession : MonoBehaviour
             password = password
         };
         var postRequest = new HttpPostRequest<TokenData>();
-        StartCoroutine(postRequest.SendRequest(url, passwordObject, (d) => { actionOk?.Invoke(d.token); },
-            (e) => { actionError?.Invoke(); }));
+        StartCoroutine(postRequest.SendRequestWithToken(url, passwordObject, (d) => { actionOk?.Invoke(d.token); },
+            (e) =>
+            {
+                actionError?.Invoke();
+                Debug.Log(e);
+            }));
     }
 }
 
@@ -40,89 +45,56 @@ public class TokenData
 
 public class HttpPostRequest<T>
 {
-    public IEnumerator SendRequest(string url, object data, Action<T> onSuccess, Action<string> onError)
+    public IEnumerator SendRequestWithToken(string url, object data, Action<T> onSuccess, Action<string> onError,
+        int maxRetries = 3)
     {
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-        request.Method = "POST";
-        request.ContentType = "application/json";
+        int attempts = 0;
+        bool requestSucceeded = false;
 
-        string json = JsonUtility.ToJson(data);
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-        request.ContentLength = bodyRaw.Length;
-
-        using (var stream = request.GetRequestStream())
+        while (attempts < maxRetries && !requestSucceeded)
         {
-            stream.Write(bodyRaw, 0, bodyRaw.Length);
-        }
-
-        try
-        {
-            var response = (HttpWebResponse)request.GetResponse();
-            var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
-
-            if (response.StatusCode == HttpStatusCode.OK)
+            var json = JsonUtility.ToJson(data);
+            var request = new UnityWebRequest(url, "POST")
             {
-                Debug.Log(responseString);
-                T result = JsonUtility.FromJson<T>(responseString);
+                uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json)),
+                downloadHandler = new DownloadHandlerBuffer()
+            };
+            request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Authorization", $"Bearer {SaveAndLoadData.LoadData("token")}");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                Debug.Log(request.downloadHandler.text);
+                T result = JsonUtility.FromJson<T>(request.downloadHandler.text);
                 onSuccess?.Invoke(result);
+                requestSucceeded = true;
+            }
+            else if (request.result == UnityWebRequest.Result.ConnectionError ||
+                     request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                if (request.error == "Request timeout")
+                {
+                    attempts++;
+                    Debug.Log($"Attempt {attempts} failed with timeout. Retrying...");
+                }
+                else
+                {
+                    onError?.Invoke($"Error: {request.error}");
+                    break;
+                }
             }
             else
             {
-                onError?.Invoke($"Error: {response.StatusCode}");
+                onError?.Invoke($"Error: {request.error}");
+                break;
             }
-        }
-        catch (Exception e)
-        {
-            onError?.Invoke($"Exception: {e.Message}");
-        }
 
-        yield return null;
-    }
-
-    public IEnumerator SendRequestWithToken(string url, object data, Action<T> onSuccess, Action<string> onError)
-    {
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-        request.Method = "POST";
-        request.ContentType = "application/json";
-
-        request.Headers.Add("Authorization", $"Bearer {SaveAndLoadData.LoadData("token")}");
-
-        string json = JsonUtility.ToJson(data);
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-        request.ContentLength = bodyRaw.Length;
-
-        using (var stream = request.GetRequestStream())
-        {
-            stream.Write(bodyRaw, 0, bodyRaw.Length);
-        }
-
-        var asyncResult = request.BeginGetResponse(null, null);
-
-        while (!asyncResult.IsCompleted)
-        {
-            yield return null;
-        }
-
-        try
-        {
-            var response = (HttpWebResponse)request.EndGetResponse(asyncResult);
-            var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
-
-            if (response.StatusCode == HttpStatusCode.OK)
+            if (attempts >= maxRetries)
             {
-                Debug.Log(responseString);
-                var result = JsonUtility.FromJson<T>(responseString);
-                onSuccess?.Invoke(result);
+                onError?.Invoke("Request timeout. Maximum retry attempts reached.");
             }
-            else
-            {
-                onError?.Invoke($"Error: {response.StatusCode}");
-            }
-        }
-        catch (Exception e)
-        {
-            onError?.Invoke($"Exception: {e.Message}");
-            throw;
         }
     }
 }

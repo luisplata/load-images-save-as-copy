@@ -1,3 +1,5 @@
+using UnityEngine.SceneManagement;
+
 namespace V2.Steps
 {
     public class Step_5_RestartApp : Step
@@ -9,7 +11,7 @@ namespace V2.Steps
 
         protected override void NextAction()
         {
-           stepsConfig.ErrorHandling.RestartApp();
+           SceneManager.LoadScene(0);
         }
     }
 }

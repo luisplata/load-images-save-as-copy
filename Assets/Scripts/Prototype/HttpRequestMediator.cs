@@ -25,14 +25,22 @@ public class HttpRequestMediator : MonoBehaviour, IHttpRequest
     public void ImagineRequest(byte[] imageInBytes, string style, string profession, Action<List<string>> ok,
         Action error)
     {
-        imagine.ImagineRequest(endpoint, Convert.ToBase64String(imageInBytes), style, profession, (d) =>
+        try
         {
-            Debug.Log("Imagen obtenida");
-            ok?.Invoke(d.upscale);
-        }, (e) =>
+            imagine.ImagineRequest(endpoint, Convert.ToBase64String(imageInBytes), style, profession, (d) =>
+            {
+                Debug.Log("Imagen obtenida");
+                ok?.Invoke(d.upscale);
+            }, (e) =>
+            {
+                Debug.Log($"Error al obtener la imagen {e}");
+                error?.Invoke();
+            });
+        }
+        catch (Exception e)
         {
-            Debug.Log($"Error al obtener la imagen {e}");
+            Debug.Log($"Error: {e}");
             error?.Invoke();
-        });
+        }
     }
 }

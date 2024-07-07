@@ -8,15 +8,16 @@ namespace V2
     {
         [SerializeField] private string uri;
 
-        public void ImagineRequest(string baseUrl, string imageInBase64, string style, string profession, Action<ImagineResponse> actionOk, Action<string> actionError)
+        public void ImagineRequest(string baseUrl, string imageInBase64, string style, string profession,
+            Action<ImagineResponse> actionOk, Action<string> actionError)
         {
             var request = new HttpPostRequest<ImagineResponse>();
             //Need serializable image to base64
-            
+
             Debug.Log($"Image: {imageInBase64}");
             Debug.Log($"Style: {style}");
             Debug.Log($"Profession: {profession}");
-            Debug.Log($"Url: {baseUrl + uri}"); 
+            Debug.Log($"Url: {baseUrl + uri}");
 
             var image = new ImageSerializable
             {
@@ -27,16 +28,24 @@ namespace V2
                 //context = "warm color temperature, dim lighting, and mysterious atmosphere";
             };
             Debug.Log($"Image: {image}");
-            StartCoroutine(request.SendRequestWithToken(baseUrl + uri, image,
-                d =>
-                {
-                    Debug.Log($"Imagen enviada");
-                    actionOk?.Invoke(d);
-                }, error =>
-                {
-                    Debug.Log($"Error al enviar la imagen {error}");
-                    actionError?.Invoke(error);
-                }));
+            try
+            {
+                StartCoroutine(request.SendRequestWithToken(baseUrl + uri, image,
+                    d =>
+                    {
+                        Debug.Log($"Imagen enviada");
+                        actionOk?.Invoke(d);
+                    }, error =>
+                    {
+                        Debug.Log($"Error al enviar la imagen {error}");
+                        actionError?.Invoke(error);
+                    }));
+            }
+            catch (Exception e)
+            {
+                Debug.Log($"Error: {e}");
+                actionError?.Invoke(e.Message);
+            }
         }
     }
 
