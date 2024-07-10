@@ -61,6 +61,7 @@ public class HttpPostRequest<T>
             };
             request.SetRequestHeader("Content-Type", "application/json");
             request.SetRequestHeader("Authorization", $"Bearer {SaveAndLoadData.LoadData("token")}");
+            request.timeout = 60;
 
             yield return request.SendWebRequest();
 
@@ -81,18 +82,21 @@ public class HttpPostRequest<T>
                 }
                 else
                 {
+                    yield return new WaitForSeconds(1);
                     onError?.Invoke($"Error: {request.error}");
                     break;
                 }
             }
             else
             {
+                yield return new WaitForSeconds(1);
                 onError?.Invoke($"Error: {request.error}");
                 break;
             }
 
             if (attempts >= maxRetries)
             {
+                yield return new WaitForSeconds(1);
                 onError?.Invoke("Request timeout. Maximum retry attempts reached.");
             }
         }

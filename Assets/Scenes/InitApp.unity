@@ -631,7 +631,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5235ff6441e4c30bc3602b9b0210c25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  endpoint: https://midjourney.bellseboss.com
+  endpoint: https://midjourney.peryloth.com
   getTokenOfSession: {fileID: 1905918269}
   imagine: {fileID: 0}
 --- !u!4 &836668610
@@ -1318,7 +1318,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d527f31c6e2540b6a6f85d6bca9ca138, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  endpoint: https://midjourney.bellseboss.com
+  endpoint: https://midjourney.peryloth.com
   http: {fileID: 836668609}
   OnStartApp:
     m_PersistentCalls:
