@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Net;
 using System.Text;
+using Plugins.ServiceLocator;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -12,7 +13,7 @@ public class GetTokenOfSession : MonoBehaviour
     [SerializeField] private string password;
 
 
-    public void PostRequest(string endpoint, Action<string> actionOk, Action actionError)
+    public void PostRequest(string endpoint, Action<string> actionOk, Action<string> actionError)
     {
         var url = endpoint + uri;
         Debug.Log("URL: " + url);
@@ -24,7 +25,7 @@ public class GetTokenOfSession : MonoBehaviour
         StartCoroutine(postRequest.SendRequestWithToken(url, passwordObject, (d) => { actionOk?.Invoke(d.token); },
             (e) =>
             {
-                actionError?.Invoke();
+                actionError?.Invoke(e);
                 Debug.Log(e);
             }));
     }
@@ -60,7 +61,7 @@ public class HttpPostRequest<T>
                 downloadHandler = new DownloadHandlerBuffer()
             };
             request.SetRequestHeader("Content-Type", "application/json");
-            request.SetRequestHeader("Authorization", $"Bearer {SaveAndLoadData.LoadData("token")}");
+            request.SetRequestHeader("Authorization", $"Bearer {ServiceLocator.Instance.GetService<ILoadData>().LoadData("token")}");
             request.timeout = 60;
 
             yield return request.SendWebRequest();

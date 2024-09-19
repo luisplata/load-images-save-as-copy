@@ -1,30 +1,33 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using Plugins.ServiceLocator;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace V2
 {
     public class Initializer : MonoBehaviour
     {
-        [SerializeField] private string endpoint;
+        
         [SerializeField, InterfaceType(typeof(IHttpRequest))]
         private Object http;
         private IHttpRequest httpRequestMediator => http as IHttpRequest;
     
         public UnityEvent OnStartApp;
         public UnityEvent OnErrorApp;
-        private SaveAndLoadData _data;
 
         private void Start()
         {
-            _data = new SaveAndLoadData();
             httpRequestMediator.CanInit(() =>
             {
                 OnStartApp?.Invoke();
-            }, () =>
+            }, e =>
             {
                 OnErrorApp?.Invoke();
+                ErrorHandle.Instance.ShowError(e);
             });
         }
     

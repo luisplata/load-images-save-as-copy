@@ -1,4 +1,5 @@
 ﻿using System;
+using Plugins.ServiceLocator;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -10,7 +11,7 @@ namespace V2
         public UnityEvent OnStartApp;
         private void Start()
         {
-            if (SaveAndLoadData.LoadData("token") == null)
+            if (!ServiceLocator.Instance.GetService<ILoadData>().HasData("token"))
             {
                 Debug.Log("Token no encontrado");
                 SceneManager.LoadScene(0);
