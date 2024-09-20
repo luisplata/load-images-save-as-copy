@@ -21,6 +21,10 @@ namespace V2
 
         private void Start()
         {
+            if (!ServiceLocator.Instance.GetService<ILoadData>().HasData("endpoint"))
+            {
+                ServiceLocator.Instance.GetService<ISaveData>().SaveData("endpoint", "https://polipeople.convexaestudio.com");
+            }
             httpRequestMediator.CanInit(() =>
             {
                 OnStartApp?.Invoke();

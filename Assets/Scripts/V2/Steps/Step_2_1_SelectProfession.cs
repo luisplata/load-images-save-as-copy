@@ -1,17 +1,23 @@
 ﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace V2.Steps
 {
     public class Step_2_1_SelectProfession : Step
     {
-        [SerializeField] private TMP_Dropdown professionDropdown;
+        //[SerializeField] private TMP_Dropdown professionDropdown;
+        
+        [SerializeField, InterfaceType(typeof(IProfessionSelection))]
+        private Object professionSelectionFacadeObject;
+        private IProfessionSelection professionSelectionFacade => professionSelectionFacadeObject as IProfessionSelection;
         private TeaTime flow;
         private bool readyToNextStep;
 
-        private Dictionary<string, string> professions = new()
+        public static readonly Dictionary<string, string> professions = new()
         {
+            { "Grupo 0", "Grupo0" },
             { "Grupo 1", "Grupo1" },
             { "Grupo 2", "Grupo2" },
             { "Grupo 3", "Grupo3" },
@@ -31,20 +37,24 @@ namespace V2.Steps
         protected override void Start()
         {
             base.Start();
+            
+            professionSelectionFacade.Configure(this);
 
-            professionDropdown.onValueChanged.AddListener(value =>
+            //professionDropdown.onValueChanged.AddListener(CallbackToSelection);
+        }
+
+        public void CallbackToSelection(string value)
+        {
+            if (value == "Grupo 0")
             {
-                if (value == 0)
-                {
-                    HideNextButton();
-                    readyToNextStep = false;
-                    flow.Play();
-                    return;
-                }
+                HideNextButton();
+                readyToNextStep = false;
+                flow.Play();
+                return;
+            }
 
-                stepsConfig.SaveProfessionSelected(professions[professionDropdown.options[value].text]);
-                readyToNextStep = true;
-            });
+            stepsConfig.SaveProfessionSelected(professions[value]);
+            readyToNextStep = true;
         }
 
         public override void StartStep()
